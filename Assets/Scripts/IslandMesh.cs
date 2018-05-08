@@ -19,9 +19,9 @@ public class IslandMesh : MonoBehaviour
 		data = GetComponent<IslandData>();
 
 		AddTiles();
-		//CollapseDoubles();
-		//if (addNoise)
-		//	AddNoise();
+		CollapseDoubles();
+		if (addNoise)
+			AddNoise();
 		ExpandDoubles();
 		//CollapseDoubles();
 		Mesh mesh = GetComponent<MeshFilter>().mesh;
@@ -37,7 +37,7 @@ public class IslandMesh : MonoBehaviour
 		foreach (Tile tile in GetComponent<IslandData>().tiles.Values)
 		{
 			AddTop(tile);
-			//AddSide(tile);
+			AddSide(tile);
 		}
 	}
 	void AddTop(Tile tile)
@@ -47,19 +47,19 @@ public class IslandMesh : MonoBehaviour
 		{
 			Vector3 vertex1WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * i), 0) * Vector3.forward * Grid.hexRadius);
 			vertex1WorldLoc = FindOffset(tile, vertex1WorldLoc, i);
-			int cT = 1;
+			//int cT = 1;
 			float height = tile.height;
-			if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
-			{
-				cT++;
-				height += IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height;
-			}
-			if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, Grid.MoveDirFix(i + 1))))
-			{
-				cT++;
-				height += IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, Grid.MoveDirFix(i + 1))].height;
-			}
-			vertex1WorldLoc.y = (height / cT) * Grid.tileHeight;
+			//if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
+			//{
+			//	cT++;
+			//	height += IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height;
+			//}
+			//if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, Grid.MoveDirFix(i + 1))))
+			//{
+			//	cT++;
+			//	height += IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, Grid.MoveDirFix(i + 1))].height;
+			//}
+			//vertex1WorldLoc.y = (height / cT) * Grid.tileHeight;
 			verts.Add(vertex1WorldLoc);
 			tris.Add(vertNumber);
 			tris.Add(vertNumber + Grid.MoveDirFix(i) + 1);
