@@ -7,10 +7,11 @@ using System.Linq;
 public class IslandData : MonoBehaviour
 {
 	public Dictionary<Vector2, Tile> tiles = new Dictionary<Vector2, Tile>();
+	public List<Vector2> peaks = new List<Vector2>();
 	public int mapGridRadius;
-	public int heightMin;
-	public int heightMax;
-	public int heightSections;
+	public int peakCount;
+	public int peakHeight;
+	public int tileCount;
 
 	public static IslandData Instance;
 	void Awake() { Instance = this; }
@@ -29,55 +30,60 @@ public class IslandData : MonoBehaviour
 
 	void AddTiles()
 	{
-		tiles.Add(Vector2.zero, new Tile(Vector2.zero, 0));
-		for (int fRadius = 1; fRadius <= mapGridRadius; fRadius++)
+		List<Vector2> heights = new List<Vector2>();
+		for (int i = 0; i < peakCount; i++)
 		{
-			//Set initial hex grid location
-			Vector2 gridLoc = new Vector2(fRadius, -fRadius);
-
-			int dir = 2;
-			//Find data for each hex in the ring (each ring has 6 more hexes than the last)
-			for (int fHex = 0; fHex < 6 * fRadius; fHex++)
+			Vector2 peak = new Vector2(Random.Range(-mapGridRadius, mapGridRadius) / 2, Random.Range(-mapGridRadius, mapGridRadius) / 2);
+			//peaks.Add(peak);
+			heights.Add(peak);
+			tiles.Add(peak, new Tile(peak, peakHeight));
+		}
+		while (tiles.Count < tileCount)
+		{
+			Vector2 tile = Grid.FindAdjacentGridLocs(heights[Random.Range(0, heights.Count)])[Random.Range(0, 6)];
+			if (!heights.Contains(tile))
 			{
-				tiles.Add(gridLoc, new Tile(gridLoc, 0));
-				//Finds next hex in ring
-				gridLoc = Grid.MoveTo(gridLoc, dir);
-				if (gridLoc.x == 0 || gridLoc.y == 0 || gridLoc.x == -gridLoc.y)
-				{
-					dir++;
-				}
+				tiles.Add(tile, new Tile(tile));
+				tiles[tile].SetHeight((int)(((float)(tileCount - heights.Count) / (float)tileCount) * peakHeight));
+				heights.Add(tile);
 			}
 		}
+		//tiles.Add(Vector2.zero, new Tile(Vector2.zero, 0));
+		//for (int fRadius = 1; fRadius <= mapGridRadius; fRadius++)
+		//{
+		//	//Set initial hex grid location
+		//	Vector2 gridLoc = new Vector2(fRadius, -fRadius);
+
+		//	int dir = 2;
+		//	//Find data for each hex in the ring (each ring has 6 more hexes than the last)
+		//	for (int fHex = 0; fHex < 6 * fRadius; fHex++)
+		//	{
+		//		tiles.Add(gridLoc, new Tile(gridLoc, 0));
+		//		//Finds next hex in ring
+		//		gridLoc = Grid.MoveTo(gridLoc, dir);
+		//		if (gridLoc.x == 0 || gridLoc.y == 0 || gridLoc.x == -gridLoc.y)
+		//		{
+		//			dir++;
+		//		}
+		//	}
+		//}
 	}
 
 	void GenHeights()
 	{
-		foreach (Tile t in tiles.Values)
-			t.SetHeight(Random.Range(heightMin, heightMax));
-		//Dictionary<Tile, float> possibleTiles = new Dictionary<Tile, float>();
-		//List<Tile> assignedTiles = new List<Tile>();
-		//for(int i = 1; i <= heightSections; i++)
+		//for (int i = 0; i < peakCount; i++)
 		//{
-		//	Tile t = tiles[tiles.Keys.ToList<Vector2>()[Random.Range(0, tiles.Count)]];
-		//	t.SetHeight(i);
-		//	assignedTiles.Add(t);
-		//	foreach (Vector2 g in Grid.FindAdjacentGridLocs(t.gridLoc))
-		//	{
-		//		if(tiles.ContainsKey(g) && !possibleTiles.ContainsKey(tiles[g]) && !assignedTiles.Contains(tiles[g]))
-		//			possibleTiles.Add(tiles[g], t.height);
-		//	}
-		//	Debug.Log(t.gridLoc + " " + i);
+		//	Vector2 peak = new List<Vector2>(tiles.Keys)[Random.Range(0, tiles.Count)];
+		//	heights.Add(peak);
+		//	tiles[peak].SetHeight(peakHeight);
 		//}
-		//while(possibleTiles.Count > 0)
+		//while (heights.Count < tiles.Count)
 		//{
-		//	Tile t = possibleTiles.Keys.ToList<Tile>()[Random.Range(0, possibleTiles.Count)];
-		//	t.SetHeight(possibleTiles[t]);
-		//	possibleTiles.Remove(t);
-		//	assignedTiles.Add(t);
-		//	foreach (Vector2 g in Grid.FindAdjacentGridLocs(t.gridLoc))
+		//	Vector2 tile = Grid.FindAdjacentGridLocs(heights[Random.Range(0, heights.Count)])[Random.Range(0, 6)];
+		//	if (!heights.Contains(tile) && tiles.ContainsKey(tile))
 		//	{
-		//		if (tiles.ContainsKey(g) && !assignedTiles.Contains(tiles[g]) && !possibleTiles.ContainsKey(tiles[g]))
-		//			possibleTiles.Add(tiles[g], t.height);
+		//		tiles[tile].SetHeight((int)(((float)(tiles.Count - heights.Count) / (float)tiles.Count) * peakHeight));
+		//		heights.Add(tile);
 		//	}
 		//}
 		GetComponent<IslandMesh>().GenMesh();

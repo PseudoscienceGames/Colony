@@ -19,12 +19,13 @@ public class IslandMesh : MonoBehaviour
 		data = GetComponent<IslandData>();
 
 		AddTiles();
-		CollapseDoubles();
-		if (addNoise)
-			AddNoise();
-		ExpandDoubles();
+		//CollapseDoubles();
+		//if (addNoise)
+		//	AddNoise();
+		//ExpandDoubles();
 		//CollapseDoubles();
 		Mesh mesh = GetComponent<MeshFilter>().mesh;
+		Debug.Log(verts.Count);
 		mesh.vertices = verts.ToArray();
 		mesh.triangles = tris.ToArray();
 		mesh.uv = uvs.ToArray();
