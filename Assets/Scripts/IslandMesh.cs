@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class IslandMesh : MonoBehaviour
 {
-	public List<Vector3> verts = new List<Vector3>();
+	private List<Vector3> verts = new List<Vector3>();
 	private List<int> tris = new List<int>();
 	private List<Vector2> uvs = new List<Vector2>();
 	private int vertNumber = 0;
@@ -17,15 +17,24 @@ public class IslandMesh : MonoBehaviour
 	public void GenMesh()
 	{
 		data = GetComponent<IslandData>();
+		verts.Clear();
+		tris.Clear();
+		uvs.Clear();
+		vertNumber = 0;
 
 		AddTiles();
+		if(verts.Count != tris.Count || verts.Count != uvs.Count)
+		{
+			Debug.Log(verts.Count + " " + tris.Count + " " + uvs.Count);
+			Debug.Break();
+		}
 		//CollapseDoubles();
 		//if (addNoise)
 		//	AddNoise();
 		//ExpandDoubles();
 		//CollapseDoubles();
 		Mesh mesh = GetComponent<MeshFilter>().mesh;
-		Debug.Log(verts.Count);
+		mesh.Clear();
 		mesh.vertices = verts.ToArray();
 		mesh.triangles = tris.ToArray();
 		mesh.uv = uvs.ToArray();
@@ -43,37 +52,40 @@ public class IslandMesh : MonoBehaviour
 	}
 	void AddTop(Tile tile)
 	{
-		verts.Add(tile.worldLoc);
 		for (int i = 0; i <= 5; i++)
 		{
-			Vector3 vertex1WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * i), 0) * Vector3.forward * Grid.hexRadius);
-			vertex1WorldLoc = FindOffset(tile, vertex1WorldLoc, i);
-			//int cT = 1;
+			Vector3 vertex1WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * Grid.MoveDirFix(i - 1)), 0) * Vector3.forward * Grid.hexRadius);
+			Vector3 vertex2WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * i), 0) * Vector3.forward * Grid.hexRadius);
+			vertex1WorldLoc = FindOffset(tile, vertex1WorldLoc, Grid.MoveDirFix(i - 1));
+			vertex2WorldLoc = FindOffset(tile, vertex2WorldLoc, i);
 			float height = tile.height;
-			//if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
-			//{
-			//	cT++;
-			//	height += IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height;
-			//}
-			//if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, Grid.MoveDirFix(i + 1))))
-			//{
-			//	cT++;
-			//	height += IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, Grid.MoveDirFix(i + 1))].height;
-			//}
-			//vertex1WorldLoc.y = (height / cT) * Grid.tileHeight;
+			verts.Add(tile.worldLoc);
 			verts.Add(vertex1WorldLoc);
+			verts.Add(vertex2WorldLoc);
 			tris.Add(vertNumber);
-			tris.Add(vertNumber + Grid.MoveDirFix(i) + 1);
-			tris.Add(vertNumber + Grid.MoveDirFix(i + 1) + 1);
+			tris.Add(vertNumber + 1);
+			tris.Add(vertNumber + 2);
+			vertNumber += 3;
 		}
-		vertNumber += 7;
+		
 		uvs.Add(new Vector2(0.5f, 0.5f));
 		uvs.Add(new Vector2(0.5f, 0));
 		uvs.Add(new Vector2(1, 0));
+		uvs.Add(new Vector2(0.5f, 0.5f));
+		uvs.Add(new Vector2(1, 0));
+		uvs.Add(new Vector2(1, 1));
+		uvs.Add(new Vector2(0.5f, 0.5f));
 		uvs.Add(new Vector2(1, 1));
 		uvs.Add(new Vector2(0.5f, 1));
+		uvs.Add(new Vector2(0.5f, 0.5f));
+		uvs.Add(new Vector2(0.5f, 1));
+		uvs.Add(new Vector2(0, 1));
+		uvs.Add(new Vector2(0.5f, 0.5f));
 		uvs.Add(new Vector2(0, 1));
 		uvs.Add(new Vector2(0, 0));
+		uvs.Add(new Vector2(0.5f, 0.5f));
+		uvs.Add(new Vector2(0, 0));
+		uvs.Add(new Vector2(0.5f, 0));
 	}
 	void AddSide(Tile tile)
 	{

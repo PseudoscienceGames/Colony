@@ -12,61 +12,51 @@ public class IslandData : MonoBehaviour
 	public int peakCount;
 	public int peakHeight;
 	public int tileCount;
+	public int currentTileCount;
+	public IslandMesh islandMesh;
 
 	public static IslandData Instance;
 	void Awake() { Instance = this; }
 
 	void Start()
 	{
+		islandMesh = GetComponent<IslandMesh>();
 		GenData();
 	}
 
 	void GenData()
 	{
-		AddTiles();
-		GenHeights();
+		StartCoroutine(AddTiles());
+		//GenHeights();
 		
 	}
 
-	void AddTiles()
+	IEnumerator AddTiles()
 	{
 		List<Vector2> heights = new List<Vector2>();
 		for (int i = 0; i < peakCount; i++)
 		{
-			Vector2 peak = new Vector2(Random.Range(-mapGridRadius, mapGridRadius) / 2, Random.Range(-mapGridRadius, mapGridRadius) / 2);
+			Vector2 peak = Vector2.zero;
 			//peaks.Add(peak);
 			heights.Add(peak);
-			tiles.Add(peak, new Tile(peak, peakHeight));
+			tiles.Add(peak, new Tile(peak, 0));
 		}
 		while (tiles.Count < tileCount)
 		{
+			currentTileCount = tiles.Count;
 			Vector2 tile = Grid.FindAdjacentGridLocs(heights[Random.Range(0, heights.Count)])[Random.Range(0, 6)];
 			if (!heights.Contains(tile))
 			{
 				tiles.Add(tile, new Tile(tile));
-				tiles[tile].SetHeight((int)(((float)(tileCount - heights.Count) / (float)tileCount) * peakHeight));
+				tiles[tile].SetHeight((int)(((float)(tileCount - heights.Count) / (float)(tileCount * 2)) * peakHeight));
 				heights.Add(tile);
+				islandMesh.GenMesh();
+				yield return null;
 			}
+			
 		}
-		//tiles.Add(Vector2.zero, new Tile(Vector2.zero, 0));
-		//for (int fRadius = 1; fRadius <= mapGridRadius; fRadius++)
-		//{
-		//	//Set initial hex grid location
-		//	Vector2 gridLoc = new Vector2(fRadius, -fRadius);
-
-		//	int dir = 2;
-		//	//Find data for each hex in the ring (each ring has 6 more hexes than the last)
-		//	for (int fHex = 0; fHex < 6 * fRadius; fHex++)
-		//	{
-		//		tiles.Add(gridLoc, new Tile(gridLoc, 0));
-		//		//Finds next hex in ring
-		//		gridLoc = Grid.MoveTo(gridLoc, dir);
-		//		if (gridLoc.x == 0 || gridLoc.y == 0 || gridLoc.x == -gridLoc.y)
-		//		{
-		//			dir++;
-		//		}
-		//	}
-		//}
+		islandMesh.GenMesh();
+		Debug.Log(Time.timeSinceLevelLoad);
 	}
 
 	void GenHeights()
