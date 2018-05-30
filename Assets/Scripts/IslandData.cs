@@ -50,13 +50,14 @@ public class IslandData : MonoBehaviour
 				tiles.Add(tile, new Tile(tile));
 				tiles[tile].SetHeight((int)(((float)(tileCount - heights.Count) / (float)(tileCount * 2)) * peakHeight));
 				heights.Add(tile);
-				islandMesh.GenMesh();
-				yield return null;
+				//islandMesh.GenMesh();
+				//yield return null;
 			}
 			
 		}
 		islandMesh.GenMesh();
 		Debug.Log(Time.timeSinceLevelLoad);
+		yield return null;
 	}
 
 	void GenHeights()
