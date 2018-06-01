@@ -423,7 +423,7 @@ MonoBehaviour:
   peaks: []
   mapGridRadius: 40
   peakCount: 1
-  peakHeight: 0
+  peakHeight: 10
   tileCount: 1000
   currentTileCount: 0
   islandMesh: {fileID: 0}
