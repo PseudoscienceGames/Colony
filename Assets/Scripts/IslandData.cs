@@ -6,13 +6,14 @@ using System.Linq;
 
 public class IslandData : MonoBehaviour
 {
-	public Dictionary<Vector2, Tile> tiles = new Dictionary<Vector2, Tile>();
-	public List<Vector2> peaks = new List<Vector2>();
+	public Dictionary<Vector2Int, Tile> tiles = new Dictionary<Vector2Int, Tile>();
+	public List<Vector2Int> peaks = new List<Vector2Int>();
 	public int mapGridRadius;
 	public int peakCount;
 	public int peakHeight;
 	public int tileCount;
 	public int currentTileCount;
+	public int flattenTimes;
 	public IslandMesh islandMesh;
 
 	public static IslandData Instance;
@@ -27,32 +28,71 @@ public class IslandData : MonoBehaviour
 	void GenData()
 	{
 		AddTiles();
-		SetConnections();
+		SetFlatConnections();
 		GenHeights();
+		AddCoast();
+		currentTileCount = tiles.Count;
 		GetComponent<IslandMesh>().GenMesh();
+		Spawner.Instance.SpawnTrees();
 	}
 
 	 void AddTiles()
 	{
-		List<Vector2> heights = new List<Vector2>();
+		List<Vector2Int> heights = new List<Vector2Int>();
 		for (int i = 0; i < peakCount; i++)
 		{
-			Vector2 peak = Vector2.zero;
-			//peaks.Add(peak);
+			Vector2Int peak = Vector2Int.zero;
 			heights.Add(peak);
 			tiles.Add(peak, new Tile(peak, 0));
 		}
 		while (tiles.Count < tileCount)
 		{
 			currentTileCount = tiles.Count;
-			Vector2 tile = Grid.FindAdjacentGridLocs(heights[Random.Range(0, heights.Count)])[Random.Range(0, 6)];
+			Vector2Int tile = Grid.FindAdjacentGridLocs(heights[Random.Range((int)(heights.Count * 0.66666f), heights.Count)])[Random.Range(0, 6)];
 			if (!heights.Contains(tile))
 			{
 				tiles.Add(tile, new Tile(tile));
-				tiles[tile].SetHeight((int)(((float)(tileCount - heights.Count) / (float)(tileCount * 2)) * peakHeight));
 				heights.Add(tile);
 			}
 		}
+	}
+
+	void SetFlatConnections()
+	{
+		foreach (Tile t in tiles.Values)
+		{
+			t.connections.Clear();
+			foreach (Vector2Int gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
+			{
+				if (tiles.ContainsKey(gridLoc))
+					t.connections.Add(gridLoc);
+			}
+		}
+	}
+
+	void AddCoast()
+	{
+		SetFlatConnections();
+		List<Vector2Int> coast = new List<Vector2Int>();
+		foreach (Tile t in tiles.Values)
+		{
+			foreach (Vector2Int gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
+			{
+				if (!tiles.ContainsKey(gridLoc) && !coast.Contains(gridLoc) && t.height < 2)
+				{
+					coast.Add(gridLoc);
+					t.coast = true;
+					t.SetHeight(0);
+				}
+			}
+		}
+		foreach(Vector2Int gridLoc in coast)
+		{
+			tiles.Add(gridLoc, new Tile(gridLoc, -1));
+			tiles[gridLoc].coast = true;
+			tiles[gridLoc].SetHeight(-1);
+		}
+		SetConnections();
 	}
 
 	void SetConnections()
@@ -60,7 +100,7 @@ public class IslandData : MonoBehaviour
 		foreach(Tile t in tiles.Values)
 		{
 			t.connections.Clear();
-			foreach(Vector2 gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
+			foreach(Vector2Int gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
 			{
 				if (tiles.ContainsKey(gridLoc) && Mathf.Abs(tiles[gridLoc].height - t.height) <= 1)
 					t.connections.Add(gridLoc);
@@ -70,38 +110,32 @@ public class IslandData : MonoBehaviour
 
 	void GenHeights()
 	{
-		//foreach tile
 		foreach(Tile t in tiles.Values)
 		{
 			if (t.connections.Count < 6)
 			{
 				t.SetHeight(0);
-				t.coast = true;
 			}
 			else
-				t.SetHeight(Random.Range(1, peakHeight));
+				t.SetHeight(Random.Range(1, peakHeight) - Grid.FindGridDistance(Vector2Int.zero, t.gridLoc));
 		}
 		SetConnections();
-		StartCoroutine(Flatten());
-		//if coast set height to 1
-		//else set height to random between 1 and max height
-		//while any tile cannot be reached by every other tile
-		//pick random tile and move height closer to average of adjacent tiles
+		Flatten();
 	}
-	IEnumerator Flatten()
+	void Flatten()
 	{
-		bool done = false;
-		while(!done)
+		int times = 0;
+		while(times < flattenTimes)
 		{
-			done = true;
+			times++;
 			foreach(Tile t in tiles.Values)
 			{
-				if(t.connections.Count < 6 && !t.coast)
+				if(t.connections.Count < 3)
 				{
-					done = false;
+
 					int heightSum = 0;
 					int count = 0;
-					foreach (Vector2 gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
+					foreach (Vector2Int gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
 					{
 						if (tiles.ContainsKey(gridLoc))
 						{
@@ -112,12 +146,9 @@ public class IslandData : MonoBehaviour
 					int h = heightSum / count;
 					if (t.height > h)
 						t.SetHeight(t.height - 1);
-					if(t.height < h)
-						t.SetHeight(t.height + 1);
 				}
 			}
-			GetComponent<IslandMesh>().GenMesh();
-			yield return null;
+			SetConnections();
 		}
 	}
 }

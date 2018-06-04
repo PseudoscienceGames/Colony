@@ -9,7 +9,7 @@ public static class Grid
 	public static float maxHeightDifference = 0.25f;
 
 	//Finds distance in number of hexes between the hex at grid location fromLoc and the hex at toLoc
-	public static int FindGridDistance(Vector2 fromLoc, Vector2 toLoc)
+	public static int FindGridDistance(Vector2Int fromLoc, Vector2Int toLoc)
 	{
 		int tempFromZ = (int)(0 - (fromLoc.x + fromLoc.y));
 		int tempToZ = (int)(0 - (toLoc.x + toLoc.y));
@@ -18,7 +18,7 @@ public static class Grid
 	}
 
 	//Takes grid location and converts it to world location
-	public static Vector3 GridToWorld(Vector2 gridLoc, float height)
+	public static Vector3 GridToWorld(Vector2Int gridLoc, float height)
 	{
 		int tempZ = (int)(0 - (gridLoc.x + gridLoc.y));
 		Vector3 worldPos = new Vector3(0.5f * (gridLoc.y - tempZ) * Mathf.Sqrt(3) * hexRadius, height * tileHeight, 1.5f * gridLoc.x * hexRadius);
@@ -26,11 +26,11 @@ public static class Grid
 	}
 
 	//Takes world location and converts it to grid location
-	public static Vector2 RoundToGrid(Vector3 worldLoc)
+	public static Vector2Int RoundToGrid(Vector3 worldLoc)
 	{
-		Vector2 gridLoc;
-		gridLoc.x = Mathf.Round(worldLoc.z / (1.5f * hexRadius));
-		gridLoc.y = Mathf.Round((worldLoc.x / (Mathf.Sqrt(3) * hexRadius)) - (gridLoc.x * 0.5f));// - (gridLoc.x * hexRadius * Mathf.Sqrt(3) * 0.5f));
+		Vector2Int gridLoc = Vector2Int.zero;
+		gridLoc.x = Mathf.RoundToInt(worldLoc.z / (1.5f * hexRadius));
+		gridLoc.y = Mathf.RoundToInt((worldLoc.x / (Mathf.Sqrt(3) * hexRadius)) - (gridLoc.x * 0.5f));// - (gridLoc.x * hexRadius * Mathf.Sqrt(3) * 0.5f));
 		return gridLoc;
 	}
 
@@ -45,10 +45,10 @@ public static class Grid
 	}
 
 	//Returns the grid location of the hex adjacent to the one at gridLoc in direction moveDir
-	public static Vector2 MoveTo(Vector2 gridLoc, int moveDir)
+	public static Vector2Int MoveTo(Vector2Int gridLoc, int moveDir)
 	{
 		moveDir = MoveDirFix(moveDir);
-		Vector2 moveTo = gridLoc;
+		Vector2Int moveTo = gridLoc;
 		if (moveDir == 0)
 		{
 			moveTo.x++;
@@ -70,9 +70,9 @@ public static class Grid
 		return moveTo;
 	}
 
-	public static List<Vector2> FindAdjacentGridLocs(Vector2 gridLoc)
+	public static List<Vector2Int> FindAdjacentGridLocs(Vector2Int gridLoc)
 	{
-		List<Vector2> adjacentLocs = new List<Vector2>();
+		List<Vector2Int> adjacentLocs = new List<Vector2Int>();
 		for (int i = 0; i < 6; i++)
 			adjacentLocs.Add(MoveTo(gridLoc, i));
 		return adjacentLocs;

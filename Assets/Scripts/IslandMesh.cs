@@ -12,6 +12,8 @@ public class IslandMesh : MonoBehaviour
 	public bool addNoise;
 	public float noiseScale;
 
+	public List<Vector2> uvOffsets = new List<Vector2>();
+
 	IslandData data;
 
 	public void GenMesh()
@@ -40,10 +42,23 @@ public class IslandMesh : MonoBehaviour
 		mesh.uv = uvs.ToArray();
 		mesh.RecalculateNormals();
 		GetComponent<MeshCollider>().sharedMesh = mesh;
+		Debug.Log(verts.Count);
 	}
 
 	void AddTiles()
 	{
+		foreach (Tile tile in GetComponent<IslandData>().tiles.Values)
+		{
+			Vector3 center = Grid.GridToWorld(tile.gridLoc, tile.height);
+			Vector3 avg = Vector3.zero;
+			for (int i = 0; i <= 5; i++)
+			{
+				Vector3 loc = FindOffset(tile, center + (Quaternion.Euler(0, (60 * i), 0) * Vector3.forward * Grid.hexRadius), i);
+				tile.verts.Add(loc);
+				avg += loc;
+			}
+			tile.verts.Add(avg / 6f);
+		}
 		foreach (Tile tile in GetComponent<IslandData>().tiles.Values)
 		{
 			AddTop(tile);
@@ -54,38 +69,33 @@ public class IslandMesh : MonoBehaviour
 	{
 		for (int i = 0; i <= 5; i++)
 		{
-			Vector3 vertex1WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * Grid.MoveDirFix(i - 1)), 0) * Vector3.forward * Grid.hexRadius);
-			Vector3 vertex2WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * i), 0) * Vector3.forward * Grid.hexRadius);
-			vertex1WorldLoc = FindOffset(tile, vertex1WorldLoc, Grid.MoveDirFix(i - 1));
-			vertex2WorldLoc = FindOffset(tile, vertex2WorldLoc, i);
-			float height = tile.height;
-			verts.Add(tile.worldLoc);
-			verts.Add(vertex1WorldLoc);
-			verts.Add(vertex2WorldLoc);
+			verts.Add(tile.verts[6]);
+			verts.Add(tile.verts[i]);
+			verts.Add(tile.verts[Grid.MoveDirFix(i + 1)]);
 			tris.Add(vertNumber);
 			tris.Add(vertNumber + 1);
 			tris.Add(vertNumber + 2);
 			vertNumber += 3;
 		}
-		
-		uvs.Add(new Vector2(0.5f, 0.5f));
-		uvs.Add(new Vector2(0.5f, 0));
-		uvs.Add(new Vector2(1, 0));
-		uvs.Add(new Vector2(0.5f, 0.5f));
-		uvs.Add(new Vector2(1, 0));
-		uvs.Add(new Vector2(1, 1));
-		uvs.Add(new Vector2(0.5f, 0.5f));
-		uvs.Add(new Vector2(1, 1));
-		uvs.Add(new Vector2(0.5f, 1));
-		uvs.Add(new Vector2(0.5f, 0.5f));
-		uvs.Add(new Vector2(0.5f, 1));
-		uvs.Add(new Vector2(0, 1));
-		uvs.Add(new Vector2(0.5f, 0.5f));
-		uvs.Add(new Vector2(0, 1));
-		uvs.Add(new Vector2(0, 0));
-		uvs.Add(new Vector2(0.5f, 0.5f));
-		uvs.Add(new Vector2(0, 0));
-		uvs.Add(new Vector2(0.5f, 0));
+		//for(int i = 0; i < 18; i++)
+		uvs.Add((new Vector2(0.5f, 0.5f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.1f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.9f, 0.1f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.5f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.9f, 0.1f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.9f, 0.9f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.5f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.9f, 0.9f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.9f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.5f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.9f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.1f, 0.9f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.5f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.1f, 0.9f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.1f, 0.1f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.5f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.1f, 0.1f) / 4f) + uvOffsets[tile.landType]);
+		uvs.Add((new Vector2(0.5f, 0.1f) / 4f) + uvOffsets[tile.landType]);
 	}
 	void AddSide(Tile tile)
 	{
@@ -94,51 +104,51 @@ public class IslandMesh : MonoBehaviour
 			if (!IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)) ||
 				IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height < tile.height)
 			{
-				int s = 0;
-				if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
-					s = (int)IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height + 1;
-				for (int h = s; h <= tile.height; h++)
+				Vector3 vertex1WorldLoc = tile.verts[i];
+				Vector3 vertex2WorldLoc = tile.verts[Grid.MoveDirFix(i - 1)];
+
+				Vector3 vertex3WorldLoc = tile.verts[Grid.MoveDirFix(i - 1)];
+				Vector3 vertex4WorldLoc = tile.verts[i];
+
+				if (!IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
 				{
-					Vector3 vertex1WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * Grid.MoveDirFix(i - 1)), 0) * Vector3.forward * Grid.hexRadius);
-					Vector3 vertex2WorldLoc = tile.worldLoc + (Quaternion.Euler(0, (60 * i), 0) * Vector3.forward * Grid.hexRadius);
-					vertex1WorldLoc = FindOffset(tile, vertex1WorldLoc, Grid.MoveDirFix(i - 1));
-					vertex2WorldLoc = FindOffset(tile, vertex2WorldLoc, i);
-
-					Vector3 vertex3WorldLoc = vertex2WorldLoc;
-					Vector3 vertex4WorldLoc = vertex1WorldLoc;
-
-					vertex1WorldLoc.y = h * Grid.tileHeight;
-					vertex2WorldLoc.y = h * Grid.tileHeight;
-					vertex3WorldLoc.y = (h - 1f) * Grid.tileHeight;
-					vertex4WorldLoc.y = (h - 1f) * Grid.tileHeight;
-					//if (IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
-					//{
-					//	vertex3WorldLoc.y = IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height * Grid.tileHeight;
-					//	vertex4WorldLoc.y = IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height * Grid.tileHeight;
-					//}
-
-					verts.Add(vertex2WorldLoc);
-					verts.Add(vertex1WorldLoc);
-					verts.Add(vertex4WorldLoc);
-					verts.Add(vertex2WorldLoc);
-					verts.Add(vertex4WorldLoc);
-					verts.Add(vertex3WorldLoc);
-
-					tris.Add(vertNumber);
-					tris.Add(vertNumber + 1);
-					tris.Add(vertNumber + 2);
-					tris.Add(vertNumber + 3);
-					tris.Add(vertNumber + 4);
-					tris.Add(vertNumber + 5);
-					vertNumber += 6;
-
-					uvs.Add(new Vector2(1, 0));
-					uvs.Add(new Vector2(1, 1));
-					uvs.Add(new Vector2(0, 1));
-					uvs.Add(new Vector2(1, 0));
-					uvs.Add(new Vector2(0, 1));
-					uvs.Add(new Vector2(0, 0));
+					vertex3WorldLoc.y -= Grid.tileHeight;
+					vertex4WorldLoc.y -= Grid.tileHeight;
 				}
+				else
+				{
+					Tile tile2 = IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)];
+					vertex3WorldLoc = tile2.verts[Grid.MoveDirFix(i + 3)];
+					vertex4WorldLoc = tile2.verts[Grid.MoveDirFix(i + 2)];
+				}
+
+				verts.Add(vertex1WorldLoc);
+				verts.Add(vertex2WorldLoc);
+				verts.Add(vertex4WorldLoc);
+				verts.Add(vertex2WorldLoc);
+				verts.Add(vertex3WorldLoc);
+				verts.Add(vertex4WorldLoc);
+
+				tris.Add(vertNumber);
+				tris.Add(vertNumber + 1);
+				tris.Add(vertNumber + 2);
+				tris.Add(vertNumber + 3);
+				tris.Add(vertNumber + 4);
+				tris.Add(vertNumber + 5);
+				vertNumber += 6;
+
+				int offset = 3;
+				if (tile.landType < 3)
+					offset = 2;
+
+				uvs.Add((new Vector2(0.1f, 0.9f) / 4f) + uvOffsets[offset]);
+				uvs.Add((new Vector2(0.9f, 0.9f) / 4f) + uvOffsets[offset]);
+				uvs.Add((new Vector2(0.1f, 0.1f) / 4f) + uvOffsets[offset]);
+
+				uvs.Add((new Vector2(0.9f, 0.9f) / 4f) + uvOffsets[offset]);
+				uvs.Add((new Vector2(0.9f, 0.1f) / 4f) + uvOffsets[offset]);
+				uvs.Add((new Vector2(0.1f, 0.1f) / 4f) + uvOffsets[offset]);
+				//}
 			}
 		}
 	}
@@ -154,18 +164,39 @@ public class IslandMesh : MonoBehaviour
 
 
 		if (otherTile1 == null && otherTile2 == null)
-			pos = pos - (pos - tile.worldLoc) / 4f;
+			pos = pos - (pos - Grid.GridToWorld(tile.gridLoc, tile.height)) / 4f;
 		else if (otherTile1 == null && otherTile2 != null)
 			pos = pos - (pos - Grid.GridToWorld(Grid.MoveTo(tile.gridLoc, vertDir), tile.height)) / 4f;
 		else if (otherTile2 == null && otherTile1 != null)
 			pos = pos - (pos - Grid.GridToWorld(Grid.MoveTo(tile.gridLoc, vertDir + 1), tile.height)) / 4f;
 		else if(otherTile1.height == otherTile2.height && otherTile2.height != tile.height)
-			pos = pos - (pos - tile.worldLoc) / 4f;
+			pos = pos - (pos - Grid.GridToWorld(tile.gridLoc, tile.height)) / 4f;
 		else if(tile.height == otherTile1.height && tile.height != otherTile2.height)
-			pos = pos - (pos - otherTile2.worldLoc) / 4f;
+			pos = pos - (pos - Grid.GridToWorld(otherTile2.gridLoc, otherTile2.height)) / 4f;
 		else if (tile.height == otherTile2.height && tile.height != otherTile1.height)
-			pos = pos - (pos - otherTile1.worldLoc) / 4f;
+			pos = pos - (pos - Grid.GridToWorld(otherTile1.gridLoc, otherTile1.height)) / 4f;
 		pos.y = tile.height * Grid.tileHeight;
+		if (otherTile1 != null && otherTile2 != null &&
+			((tile.height - 1 == otherTile1.height  && tile.height - 1 == otherTile2.height) ||
+			(tile.height - 1 == otherTile1.height && tile.height == otherTile2.height) ||
+			(tile.height == otherTile1.height && tile.height - 1 == otherTile2.height) ||
+			(tile.height > otherTile1.height + 1 && tile.height > otherTile2.height + 1)))
+			pos.y = (tile.height - .5f) * Grid.tileHeight;
+		if (otherTile1 != null && otherTile2 != null &&
+			((tile.height + 1 == otherTile1.height && tile.height + 1 == otherTile2.height) ||
+			(tile.height + 1 == otherTile1.height && tile.height == otherTile2.height) ||
+			(tile.height == otherTile1.height && tile.height + 1 == otherTile2.height)))
+			pos.y = (tile.height + .5f) * Grid.tileHeight;
+		if(otherTile1 != null && otherTile2 != null && 
+			((tile.height - 1 == otherTile1.height && otherTile2.height < otherTile1.height) ||
+			(tile.height - 1 == otherTile2.height && otherTile1.height < otherTile2.height)))
+			pos.y = (tile.height - 1f) * Grid.tileHeight;
+		if (otherTile1 != null && otherTile2 != null &&
+			((tile.height + 1 == otherTile1.height && otherTile2.height > otherTile1.height) ||
+			(tile.height + 1 == otherTile2.height && otherTile1.height > otherTile2.height)))
+			pos.y = (tile.height + 1f) * Grid.tileHeight;
+		if (otherTile1 == null || otherTile2 == null)
+			pos.y = (tile.height - 1f) * Grid.tileHeight;
 		return pos;
 	}
 	void AddNoise()

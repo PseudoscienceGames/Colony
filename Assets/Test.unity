@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -287,8 +287,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1060748942}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.2, z: 0}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalPosition: {x: 0, y: -0.19, z: 0}
+  m_LocalScale: {x: 100, y: 1, z: 100}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -397,6 +397,7 @@ GameObject:
   - component: {fileID: 1926491265}
   - component: {fileID: 1926491264}
   - component: {fileID: 1926491268}
+  - component: {fileID: 1926491272}
   - component: {fileID: 1926491267}
   - component: {fileID: 1926491266}
   - component: {fileID: 1926491269}
@@ -423,9 +424,10 @@ MonoBehaviour:
   peaks: []
   mapGridRadius: 40
   peakCount: 1
-  peakHeight: 10
-  tileCount: 1000
+  peakHeight: 100
+  tileCount: 1500
   currentTileCount: 0
+  flattenTimes: 100
   islandMesh: {fileID: 0}
 --- !u!4 &1926491265
 Transform:
@@ -454,7 +456,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: f2ba1a646d8a72847a168a029d1f9c72, type: 2}
+  - {fileID: 2100000, guid: 78191bca95857f547809b5233ed253e5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -494,6 +496,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   addNoise: 1
   noiseScale: 0.05
+  uvOffsets:
+  - {x: 0, y: 0}
+  - {x: 0.25, y: 0}
+  - {x: 0.5, y: 0}
+  - {x: 0.75, y: 0}
 --- !u!64 &1926491269
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -532,3 +539,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e038bf700cfa444fb16c6ef963be9f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1926491272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1926491263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f4840723ba21f842973915185adb2a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treeCount: 500
+  pine: {fileID: 1430777605424362, guid: d708b1c16e8d9204aa932bac11cb85ff, type: 2}
+  palm: {fileID: 1283864748706584, guid: 14686b4c34ea54c49a5ead9a6d6ffea6, type: 2}
+  blob: {fileID: 1397360422627102, guid: ef678cbcdb930bf4d885c00fa07af721, type: 2}
