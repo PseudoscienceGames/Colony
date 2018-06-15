@@ -101,8 +101,8 @@ public class IslandMesh : MonoBehaviour
 	{
 		for (int i = 0; i <= 5; i++)
 		{
-			if (!IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)) ||
-				IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)].height < tile.height)
+			if (!data.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)) ||
+				data.tiles[Grid.MoveTo(tile.gridLoc, i)].height < tile.height)
 			{
 				Vector3 vertex1WorldLoc = tile.verts[i];
 				Vector3 vertex2WorldLoc = tile.verts[Grid.MoveDirFix(i - 1)];
@@ -110,14 +110,14 @@ public class IslandMesh : MonoBehaviour
 				Vector3 vertex3WorldLoc = tile.verts[Grid.MoveDirFix(i - 1)];
 				Vector3 vertex4WorldLoc = tile.verts[i];
 
-				if (!IslandData.Instance.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
+				if (!data.tiles.ContainsKey(Grid.MoveTo(tile.gridLoc, i)))
 				{
 					vertex3WorldLoc.y -= Grid.tileHeight;
 					vertex4WorldLoc.y -= Grid.tileHeight;
 				}
 				else
 				{
-					Tile tile2 = IslandData.Instance.tiles[Grid.MoveTo(tile.gridLoc, i)];
+					Tile tile2 = data.tiles[Grid.MoveTo(tile.gridLoc, i)];
 					vertex3WorldLoc = tile2.verts[Grid.MoveDirFix(i + 3)];
 					vertex4WorldLoc = tile2.verts[Grid.MoveDirFix(i + 2)];
 				}

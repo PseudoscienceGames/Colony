@@ -8,14 +8,14 @@ public class Spawner : MonoBehaviour
 	public GameObject pine;
 	public GameObject palm;
 	public GameObject blob;
-	public static Spawner Instance;
-	void Awake() { Instance = this; }
+	IslandData data;
 
 	public void SpawnTrees()
 	{
+		data = GetComponent<IslandData>();
 		for (int i = 0; i < treeCount; i++)
 		{
-			Tile t = new List<Tile>(IslandData.Instance.tiles.Values)[Random.Range(0, IslandData.Instance.tiles.Count)];
+			Tile t = new List<Tile>(data.tiles.Values)[Random.Range(0, data.tiles.Count)];
 			if (t.landType == 0)
 			{
 				Instantiate(palm, t.verts[6], Quaternion.Euler(0, Random.Range(0, 360), 0));
