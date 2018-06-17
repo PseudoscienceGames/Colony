@@ -5,15 +5,24 @@ using UnityEngine;
 public class TriangleGrid : MonoBehaviour
 {
 	Dictionary<TriGridLoc, TriTile> grid = new Dictionary<TriGridLoc, TriTile>();
-
+	public int size;
+	public int maxHeight;
 	private void Start()
 	{
-		for(int x = 0; x < 5; x++)
+		for(int x = 0; x < size; x++)
 		{
-			for (int y = 0; y < 5; y++)
+			for (int y = 0; y < size; y++)
 			{
-				grid.Add(new TriGridLoc(x, y, true), new TriTile(x, y, true, Random.Range(0,4)));
-				grid.Add(new TriGridLoc(x, y, false), new TriTile(x, y, false, Random.Range(0, 4)));
+				TriTile t =	new TriTile(x, y, true, Random.Range(0, maxHeight));
+				t.verts.Add(t.WorldLoc() + new Vector3(0, 0, Mathf.Sqrt(3) / 3f));
+				t.verts.Add(t.WorldLoc() + new Vector3(0.5f, 0, -Mathf.Sqrt(3) / 6f));
+				t.verts.Add(t.WorldLoc() + new Vector3(-0.5f, 0, -Mathf.Sqrt(3) / 6f));
+				grid.Add(t.gridLoc, t);
+				t = new TriTile(x, y, false, Random.Range(0, maxHeight));
+				t.verts.Add(t.WorldLoc() + new Vector3(0, 0, -Mathf.Sqrt(3) / 3f));
+				t.verts.Add(t.WorldLoc() + new Vector3(-0.5f, 0, Mathf.Sqrt(3) / 6f));
+				t.verts.Add(t.WorldLoc() + new Vector3(0.5f, 0, Mathf.Sqrt(3) / 6f));
+				grid.Add(t.gridLoc, t);
 			}
 		}
 		GetComponent<TriGridMesh>().GenMesh(ref grid);
@@ -38,6 +47,7 @@ public struct TriTile
 {
 	public TriGridLoc gridLoc;
 	public int height;
+	public List<Vector3> verts;
 
 	public Vector3 WorldLoc()
 	{
@@ -54,6 +64,7 @@ public struct TriTile
 	{
 		this.gridLoc = gridLoc;
 		this.height = height;
+		verts = new List<Vector3>();
 	}
 	public TriTile(int x, int y, bool left, int height)
 	{
@@ -61,6 +72,7 @@ public struct TriTile
 		gridLoc.y = y;
 		gridLoc.left = left;
 		this.height = height;
+		verts = new List<Vector3>();
 	}
 
 

@@ -17,18 +17,9 @@ public class TriGridMesh : MonoBehaviour
 		foreach(KeyValuePair<TriGridLoc, TriTile> kvp in grid)
 		{
 			TriTile t = kvp.Value;
-			if (t.gridLoc.left)
-			{
-				verts.Add(t.WorldLoc() + new Vector3(0, 0, Mathf.Sqrt(3) / 3f));
-				verts.Add(t.WorldLoc() + new Vector3(0.5f, 0, -Mathf.Sqrt(3) / 6f));
-				verts.Add(t.WorldLoc() + new Vector3(-0.5f, 0, -Mathf.Sqrt(3) / 6f));
-			}
-			else
-			{
-				verts.Add(t.WorldLoc() + new Vector3(0, 0, -Mathf.Sqrt(3) / 3f));
-				verts.Add(t.WorldLoc() + new Vector3(-0.5f, 0, Mathf.Sqrt(3) / 6f));
-				verts.Add(t.WorldLoc() + new Vector3(0.5f, 0, Mathf.Sqrt(3) / 6f));
-			}
+			verts.Add(t.verts[0]);
+			verts.Add(t.verts[1]);
+			verts.Add(t.verts[2]);
 			tris.Add(vertNum);
 			tris.Add(vertNum + 1);
 			tris.Add(vertNum + 2);
@@ -40,9 +31,27 @@ public class TriGridMesh : MonoBehaviour
 			List<TriGridLoc> connections = t.FindConnections();
 			for (int i = 0; i < 3; i++)
 			{
-				if (grid.Contains(connections[i]) && )
+				if (grid.ContainsKey(connections[i]) )
 				{
-
+					TriTile o = grid[connections[i]];
+					verts.Add(t.verts[i]);
+					if (i == 0)
+					{
+						verts.Add(t.verts[2]);
+						verts.Add(o.verts[2]);
+					}
+					else
+					{
+						verts.Add(t.verts[i-1]);
+						verts.Add(o.verts[i-1]);
+					}
+					tris.Add(vertNum);
+					tris.Add(vertNum + 1);
+					tris.Add(vertNum + 2);
+					uvs.Add(new Vector2(0.5f, 1f));
+					uvs.Add(new Vector2(1f, 0));
+					uvs.Add(new Vector2(0f, 0f));
+					vertNum += 3;
 				}
 			}
 		}
