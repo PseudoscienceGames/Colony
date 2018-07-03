@@ -24,19 +24,19 @@ public class IslandData : MonoBehaviour
 		islandMesh = GetComponent<IslandMesh>();
 		GenData();
 	}
-
 	void GenData()
 	{
 		AddTiles();
 		SetFlatConnections();
 		AddCoast();
 		PatchHoles();
+		SetFlatConnections();
 		GenHeights();
+		Flatten();
 		currentTileCount = tiles.Count;
 		GetComponent<IslandMesh>().GenMesh();
 		GetComponent<Spawner>().SpawnTrees();
 	}
-
 	void AddTiles()
 	{
 		List<Vector2Int> islandTiles = new List<Vector2Int>();
@@ -126,7 +126,6 @@ public class IslandData : MonoBehaviour
 			}
 		}
 	}
-
 	void SetFlatConnections()
 	{
 		foreach (Tile t in tiles.Values)
@@ -139,7 +138,6 @@ public class IslandData : MonoBehaviour
 			}
 		}
 	}
-
 	void AddCoast()
 	{
 		List<Vector2Int> coast = new List<Vector2Int>();
@@ -173,22 +171,20 @@ public class IslandData : MonoBehaviour
 				t.SetHeight(0);
 			}
 		}
-		//SetConnections();
+		SetConnections();
 	}
-
-	//void SetConnections()
-	//{
-	//	foreach(Tile t in tiles.Values)
-	//	{
-	//		t.connections.Clear();
-	//		foreach(Vector2Int gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
-	//		{
-	//			if (tiles.ContainsKey(gridLoc) && Mathf.Abs(tiles[gridLoc].height - t.height) <= 1)
-	//				t.connections.Add(gridLoc);
-	//		}
-	//	}
-	//}
-
+	void SetConnections()
+	{
+		foreach (Tile t in tiles.Values)
+		{
+			t.connections.Clear();
+			foreach (Vector2Int gridLoc in Grid.FindAdjacentGridLocs(t.gridLoc))
+			{
+				if (tiles.ContainsKey(gridLoc) && Mathf.Abs(tiles[gridLoc].height - t.height) <= 1)
+					t.connections.Add(gridLoc);
+			}
+		}
+	}
 	void GenHeights()
 	{
 		foreach (Tile t in tiles.Values)
@@ -198,7 +194,8 @@ public class IslandData : MonoBehaviour
 				t.SetHeight(0);
 			}
 			else
-				t.SetHeight(Random.Range(10, peakHeight + 10));// - Grid.FindGridDistance(Vector2Int.zero, t.gridLoc));
+				t.SetHeight(Random.Range(1, peakHeight));// - Grid.FindGridDistance(Vector2Int.zero, t.gridLoc));
+			//Debug.Log(t.connections.Count);
 		}
 		//SetConnections();
 		//Flatten();
@@ -229,7 +226,7 @@ public class IslandData : MonoBehaviour
 						t.SetHeight(t.height - 1);
 				}
 			}
-			//SetConnections();
+			SetConnections();
 		}
 	}
 }

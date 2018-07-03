@@ -16,19 +16,20 @@ public class Spawner : MonoBehaviour
 		for (int i = 0; i < treeCount; i++)
 		{
 			Tile t = new List<Tile>(data.tiles.Values)[Random.Range(0, data.tiles.Count)];
+			GameObject tree = gameObject;
 			if (t.landType == 0)
 			{
-				Instantiate(palm, t.verts[6], Quaternion.Euler(0, Random.Range(0, 360), 0));
+				tree = Instantiate(palm, t.verts[6], Quaternion.Euler(0, Random.Range(0, 360), 0)) as GameObject;
 			}
 			if (t.landType == 1)
 			{
-				Instantiate(blob, t.verts[6], Quaternion.Euler(0, Random.Range(0, 360), 0));
+				tree = Instantiate(blob, t.verts[6], Quaternion.Euler(0, Random.Range(0, 360), 0)) as GameObject;
 			}
-			if (t.landType == 2)
+			else if (t.landType == 2)
 			{
-				Instantiate(pine, t.verts[6], Quaternion.Euler(0, Random.Range(0, 360), 0));
+				tree = Instantiate(pine, t.verts[6], Quaternion.Euler(0, Random.Range(0, 360), 0)) as GameObject;
 			}
-
+			tree.transform.parent = transform;
 		}
 	}
 }

@@ -169,9 +169,9 @@ public class IslandMesh : MonoBehaviour
 			pos = pos - (pos - Grid.GridToWorld(Grid.MoveTo(tile.gridLoc, vertDir), tile.height)) / 4f;
 		else if (otherTile2 == null && otherTile1 != null)
 			pos = pos - (pos - Grid.GridToWorld(Grid.MoveTo(tile.gridLoc, vertDir + 1), tile.height)) / 4f;
-		else if(otherTile1.height == otherTile2.height && otherTile2.height != tile.height)
+		else if (otherTile1.height == otherTile2.height && otherTile2.height != tile.height)
 			pos = pos - (pos - Grid.GridToWorld(tile.gridLoc, tile.height)) / 4f;
-		else if(tile.height == otherTile1.height && tile.height != otherTile2.height)
+		else if (tile.height == otherTile1.height && tile.height != otherTile2.height)
 			pos = pos - (pos - Grid.GridToWorld(otherTile2.gridLoc, otherTile2.height)) / 4f;
 		else if (tile.height == otherTile2.height && tile.height != otherTile1.height)
 			pos = pos - (pos - Grid.GridToWorld(otherTile1.gridLoc, otherTile1.height)) / 4f;
