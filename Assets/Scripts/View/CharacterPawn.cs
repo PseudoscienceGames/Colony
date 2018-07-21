@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FactionView : MonoBehaviour
+public class CharacterPawn : MonoBehaviour
 {
-	public Faction faction;
+	public Character character;
 }

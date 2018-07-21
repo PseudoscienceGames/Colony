@@ -18,6 +18,7 @@ public class CameraControl : MonoBehaviour
 	public static CameraControl Instance;
 	void Awake() { Instance = this; }
 
+
 	void Update()
 	{
 		if (Input.GetAxis("Vertical") != 0)
@@ -59,25 +60,25 @@ public class CameraControl : MonoBehaviour
 				}
 			}
 		}
+
+		//public void FocusCamera(Vector2 gridLoc)
+		//{
+		//	StopAllCoroutines();
+		//	StartCoroutine(SmoothFocus(gridLoc));
+		//}
+
+		//IEnumerator SmoothFocus(Vector2 gridLoc)
+		//{
+		//	Vector3 initPos = transform.position;
+		//	Vector3 targetPos = Grid.GridToWorld(gridLoc, 0);
+
+		//	float timer = 0;
+		//	while (timer <= 1)
+		//	{
+		//		timer += Time.deltaTime;
+		//		transform.position = Vector3.Lerp(initPos, targetPos, timer);
+		//		yield return null;
+		//	}
+		//}
 	}
-
-	//public void FocusCamera(Vector2 gridLoc)
-	//{
-	//	StopAllCoroutines();
-	//	StartCoroutine(SmoothFocus(gridLoc));
-	//}
-
-	//IEnumerator SmoothFocus(Vector2 gridLoc)
-	//{
-	//	Vector3 initPos = transform.position;
-	//	Vector3 targetPos = Grid.GridToWorld(gridLoc, 0);
-
-	//	float timer = 0;
-	//	while (timer <= 1)
-	//	{
-	//		timer += Time.deltaTime;
-	//		transform.position = Vector3.Lerp(initPos, targetPos, timer);
-	//		yield return null;
-	//	}
-	//}
 }

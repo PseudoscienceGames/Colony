@@ -11,6 +11,7 @@ public class IslandMesh : MonoBehaviour
 	private int vertNumber = 0;
 	public bool addNoise;
 	public float noiseScale;
+	public float scaleSpeed = 1;
 
 	public List<Vector2> uvOffsets = new List<Vector2>();
 
@@ -43,6 +44,21 @@ public class IslandMesh : MonoBehaviour
 		mesh.RecalculateNormals();
 		GetComponent<MeshCollider>().sharedMesh = mesh;
 		Debug.Log(verts.Count);
+		GetComponent<Spawner>().SpawnTrees();
+		StartCoroutine(Unflatten());
+	}
+
+	private IEnumerator Unflatten()
+	{
+		transform.localScale = new Vector3(1, 0.0001f, 1);
+		yield return new WaitForSeconds(2);
+		while(transform.localScale.y < 1)
+		{
+			transform.localScale = new Vector3(1, transform.localScale.y + (Time.deltaTime * scaleSpeed), 1);
+			yield return null;
+		}
+		transform.localScale = Vector3.one;
+		yield return null;
 	}
 
 	void AddTiles()

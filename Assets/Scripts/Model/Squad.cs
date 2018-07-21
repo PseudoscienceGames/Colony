@@ -7,7 +7,8 @@ using UnityEngine.AI;
 public class Squad
 {
 	public int faction;
-	public Vector3 target;
-	public NavMeshAgent nav;
 	public List<int> chars = new List<int>();
+	public Vector3 location;
+	public Vector3 destination;
+	private SquadPawn view;
 }

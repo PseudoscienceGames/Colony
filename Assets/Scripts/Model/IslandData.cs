@@ -35,7 +35,6 @@ public class IslandData : MonoBehaviour
 		Flatten();
 		currentTileCount = tiles.Count;
 		GetComponent<IslandMesh>().GenMesh();
-		GetComponent<Spawner>().SpawnTrees();
 	}
 	void AddTiles()
 	{
